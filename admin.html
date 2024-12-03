@@ -344,31 +344,33 @@
       document.getElementById('document-tracking').appendChild(row);
       async function sendDocumentDetailsToBackend(jsonObject) {
   try {
-    // Make sure to set the correct API route based on the backend functionality
-    // let response = await fetch('', { // Ensure the path matches your backend route
-    let response = await fetch('/api/adminPageing/routes/documents', { // Ensure the path matches your backend route
+    let response = await fetch('https://saikiranganta2003.github.io/adminPageing/routes/documents', { // Ensure the path matches your backend route
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(jsonObject),
     });
-
+  
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     let request = await response.json();
     console.log('Response from backend:', request);
+    
+
   } catch (error) {
     console.error('Error:', error.message);
   }
+
 }
 
 // Example usage: Replace this JSON object with your actual data
 
 // Call the function to send data to the backend
-sendDocumentDetailsToBackend(jsonObject);
+      sendDocumentDetailsToBackend(jsonObject);
+      sendEmailsToReviewersAndApprover( JSON.stringify(reviewers), JSON.stringify(approver))
 
       
     });
@@ -376,7 +378,7 @@ sendDocumentDetailsToBackend(jsonObject);
     // Send emails to reviewers and approver via backend
     function sendEmailsToReviewersAndApprover(reviewers, approver) {
       const emailData = { reviewers, approver };
-      fetch('https://saikiranganta2003.github.io/adminPageing/notifications', {
+      fetch('https://saikiranganta2003.github.io/adminPageing/routes/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(emailData)
