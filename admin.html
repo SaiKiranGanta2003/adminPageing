@@ -345,8 +345,8 @@
       async function sendDocumentDetailsToBackend(jsonObject) {
   try {
     // Make sure to set the correct API route based on the backend functionality
-    let response = await fetch('https://saikiranganta2003.github.io/adminPageing/documents', { // Ensure the path matches your backend route
-      method: 'POST',
+    let response = await fetch('https://saikiranganta2003.github.io/adminPageing/documents.js/upload:1', { // Ensure the path matches your backend route
+      method: 'post',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -373,17 +373,17 @@ sendDocumentDetailsToBackend(jsonObject);
     });
   
     // Send emails to reviewers and approver via backend
-    // function sendEmailsToReviewersAndApprover(reviewers, approver) {
-    //   const emailData = { reviewers, approver };
-    //   fetch('/notifications/send', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(emailData)
-    //   })
-    //     .then(response => response.json())
-    //     .then(data => console.log('Emails sent successfully:', data))
-    //     .catch(error => console.error('Error sending emails:', error));
-    // }
+    function sendEmailsToReviewersAndApprover(reviewers, approver) {
+      const emailData = { reviewers, approver };
+      fetch('https://saikiranganta2003.github.io/adminPageing/notifications/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emailData)
+      })
+        .then(response => response.json())
+        .then(data => console.log('Emails sent successfully:', data))
+        .catch(error => console.error('Error sending emails:', error));
+    }
 
   </script>
 </body>
