@@ -345,7 +345,11 @@
       async function sendDocumentDetailsToBackend(jsonObject) {
   try {
     // Make sure to set the correct API route based on the backend functionality
+<<<<<<< HEAD
     let response = await fetch('/api/documents', { // Ensure the path matches your backend route
+=======
+    let response = await fetch('/routes/documents', { // Ensure the path matches your backend route
+>>>>>>> 2d776864f8b426db871e7388ac0569389c443f54
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
