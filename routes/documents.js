@@ -8,7 +8,7 @@ const User = require('../models/user'); // Assuming the User model exists
 router.use(express.json());
 
 // Upload a Document
-router.post('/upload', async (req, res) => {
+router.post('/modles/document', async (req, res) => {
   const { title, file, reviewers, approvers } = req.body;
 
   try {
