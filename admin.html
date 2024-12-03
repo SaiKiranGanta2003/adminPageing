@@ -214,7 +214,7 @@
   </footer>
 
   <script>
-
+    import {router} from './routes/documents';
     document.getElementById('year').textContent = new Date().getFullYear();
     const users = [];
     const documents = [];
@@ -378,7 +378,7 @@
     // Send emails to reviewers and approver via backend
      async function sendEmailsToReviewersAndApprover(reviewers, approver) {
       const emailData = { reviewers, approver };
-        await fetch('https://saikiranganta2003.github.io/adminPageing/routes/notifications', {
+        await fetch('api/adminPageing/routes/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(emailData)
