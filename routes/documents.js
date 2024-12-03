@@ -1,17 +1,23 @@
-const Document = require('./models/Document');  // Assuming you have a Document model
-const User = require('./models/User');  // Assuming you have a User model
+const express = require('express');
+const router = express.Router();
 const mongoose = require('mongoose');
+const Document = require("/models/document"); // Assuming the Document model exists
+const User = require('../models/user'); // Assuming the User model exists
 
-// Function to upload a document
-const uploadDocument = async (req, res) => {
+// Middleware for parsing JSON
+router.use(express.json());
+
+// Upload a Document
+router.post('/upload', async (req, res) => {
   const { title, file, reviewers, approvers } = req.body;
 
   try {
+    // Validate file
     if (!file) {
       return res.status(400).json({ error: 'Document file is required' });
     }
 
-    // Check if the reviewers and approvers are valid users
+    // Validate reviewers and approvers
     const reviewersList = await User.find({ email: { $in: reviewers } });
     const approversList = await User.find({ email: { $in: approvers } });
 
@@ -23,10 +29,10 @@ const uploadDocument = async (req, res) => {
       return res.status(400).json({ error: 'There must be exactly one approver' });
     }
 
-    // Create a new document entry
+    // Create new document
     const newDocument = new Document({
       title,
-      file: file,  // You can store a link to the file or use a file storage service (e.g., Google Drive, AWS S3)
+      file, // Replace with file storage URL if applicable
       reviewers: reviewersList.map(user => user._id),
       approver: approversList[0]._id,
       status: 'Pending',
@@ -34,7 +40,6 @@ const uploadDocument = async (req, res) => {
       signatures: [],
     });
 
-    // Save the document to the database
     await newDocument.save();
 
     res.status(201).json({
@@ -45,10 +50,10 @@ const uploadDocument = async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-};
+});
 
-// Function to update document status (approve/reject)
-const updateDocumentStatus = async (req, res) => {
+// Update Document Status
+router.post('/update-status', async (req, res) => {
   const { documentId, status, comment, signature } = req.body;
 
   try {
@@ -63,17 +68,12 @@ const updateDocumentStatus = async (req, res) => {
       return res.status(403).json({ error: 'You are not authorized to approve/reject this document' });
     }
 
-    // Update document status and add comment/signature
+    // Update status, comments, and signatures
     document.status = status;
-    document.comments.push(comment);
-    document.signatures.push(signature);
+    if (comment) document.comments.push({ user: req.user._id, comment });
+    if (signature) document.signatures.push(signature);
 
     await document.save();
-
-    // If the document is approved, notify reviewers and admin (This can be handled later via email)
-    if (status === 'Approved') {
-      // Send notification logic (to be implemented)
-    }
 
     res.status(200).json({
       message: 'Document status updated successfully',
@@ -83,10 +83,10 @@ const updateDocumentStatus = async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-};
+});
 
-// Function to track documents and their statuses
-const getDocumentTracking = async (req, res) => {
+// Get Document Tracking
+router.get('/tracking', async (req, res) => {
   try {
     const documents = await Document.find().populate('reviewers approver', 'email role');
 
@@ -97,7 +97,7 @@ const getDocumentTracking = async (req, res) => {
         email: reviewer.email,
         role: reviewer.role,
         status: doc.signatures.includes(reviewer._id) ? 'Signed' : 'Pending',
-        comments: doc.comments.filter(comment => comment.reviewer.toString() === reviewer._id.toString()),
+        comments: doc.comments.filter(comment => comment.user.toString() === reviewer._id.toString()),
       })),
       approver: {
         email: doc.approver.email,
@@ -111,10 +111,10 @@ const getDocumentTracking = async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-};
+});
 
-// Function to get document by ID
-const getDocumentById = async (req, res) => {
+// Get Document by ID
+router.get('/:documentId', async (req, res) => {
   const { documentId } = req.params;
 
   try {
@@ -129,32 +129,6 @@ const getDocumentById = async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
-};
+});
 
-module.exports = {
-  uploadDocument,
-  updateDocumentStatus,
-  getDocumentTracking,
-  getDocumentById,
-};
-
-
-// const express = require('express');
-// const Document = require('../models/document');
-// const router = express.Router();
-
-// // Upload Document
-// router.post('/upload', async (req, res) => {
-//     const { title, reviewers, approver } = req.body;
-
-//     try {
-//         const newDocument = new Document({ title, reviewers, approver, status: 'Pending Review' });
-//         await newDocument.save();
-//         res.status(201).json({ message: 'Document uploaded successfully' });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: 'Error uploading document' });
-//     }
-// });
-
-// module.exports = router;
+module.exports = router;

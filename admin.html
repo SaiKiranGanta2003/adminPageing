@@ -214,16 +214,10 @@
   </footer>
 
   <script>
-    // Set the current year dynamically
+
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Fetch users from backend and store them in the local array
     const users = [];
-
-    // Array to temporarily hold document data
     const documents = [];
-
-    // User Form Submission (Add user details to the user list)
     document.getElementById('user-form').addEventListener('submit', function (e) {
       e.preventDefault();
       const userName = document.getElementById('user-name').value;
@@ -237,31 +231,11 @@
       }
 
       const newUser = { name: userName, email: userEmail, role: userRole };
-      users.push(newUser); 
-      displayUsers(); // Refresh the UI
+      users.push(newUser);
+      displayUsers();
       alert(`User ${newUser.name} (${newUser.email}) added as ${newUser.role}.`);
       document.getElementById('user-form').reset();
     });
-
-
-    // Replace 'file:///C:/api/users' with a proper server URL
-    // fetch() // Or the actual server endpoint
-
-    // Send user data to the backend
-    //   fetch('http://127.0.0.1:8080/backend/routes/users', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(newUser)
-    //   })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //      // Add to the users list
-    //       displayUsers(); // Refresh the UI
-    //       alert(`User ${data.name} (${data.email}) added as ${data.role}.`);
-    //       document.getElementById('user-form').reset();
-    //     })
-    //     .catch(error => console.error('Error adding user:', error));
-    // });
 
     // Function to display users in the Manage Users section
     function displayUsers() {
@@ -324,7 +298,7 @@
     }
 
     // Document Upload Form Submission (Track document, reviewers, and approvers)
-    document.getElementById('upload-form').addEventListener('submit', function (e) {
+    document.getElementById('upload-form').addEventListener('submit', async function (e) {
       e.preventDefault();
 
       const documentFile = document.getElementById('document-file').files[0];
@@ -332,7 +306,6 @@
         .map(checkbox => checkbox.value);
       const approverEmail = document.getElementById('approver').value;
 
-      console.log()
 
       const allEmails = reviewerEmails.concat(approverEmail);
       const uniqueEmails = new Set(allEmails);
@@ -349,14 +322,15 @@
         return;
       }
 
-
-      
-      const formData = new FormData();
-      formData.append('file', documentFile);
-      formData.append('reviewers', JSON.stringify(reviewers));
-      formData.append('approver', JSON.stringify(approver));
-    
-  const row = document.createElement('tr');
+      const formData = [];
+      formData.unshift('name',documentFile.name)
+      formData.unshift('file', documentFile);
+      formData.unshift('reviewers', JSON.stringify(reviewers));
+      formData.unshift('approver', JSON.stringify(approver));
+      dataArray = formData
+      const jsonObject = {}; for (let i = 0; i < dataArray.length; i += 2) { const key = dataArray[i]; const value = dataArray[i + 1]; jsonObject[key] = typeof value === 'string' && value.startsWith('{') ? JSON.parse(value) : value; }
+      console.log(jsonObject)
+      const row = document.createElement('tr');
       row.innerHTML = `
         <td>${documentFile.name}</td>
         <td>${reviewers.map(r => r.name).join(', ')}</td>
@@ -365,39 +339,43 @@
       `;
 
       // Send document details to the backend
-    
+      const app = {}; // Define the app variable
+      // Your code that uses app
       document.getElementById('document-tracking').appendChild(row);
-        fetch('http://localhost:8080/backend/routes/documents', {
-          method: 'POST',
-          body: JSON.stringify(formData),
-          headers: {
-    'Content-Type': 'application/json',
-  },
-
-        })
-          .then(response => response.json())
-          .then(newDocument => {
-            // Add document to the tracking table
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${newDocument.documentName}</td>
-              <td>${reviewers.map(r => r.name).join(', ')}</td>
-              <td>${approver.name}</td>
-              <td>${newDocument.status}</td>
-            `;
-            document.getElementById('document-tracking').appendChild(row);
-
-            alert(`Document ${newDocument.documentName} uploaded successfully.`);
-            // sendEmailsToReviewersAndApprover(reviewers, approver);
-          })
-          .catch(error => console.error('Error uploading document:', error));
-
+      async function sendDocumentDetailsToBackend(jsonObject) {
+  try {
+    // Make sure to set the correct API route based on the backend functionality
+    let response = await fetch('/documents', { // Ensure the path matches your backend route
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(jsonObject),
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    let request = await response.json();
+    console.log('Response from backend:', request);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+// Example usage: Replace this JSON object with your actual data
+
+// Call the function to send data to the backend
+sendDocumentDetailsToBackend(jsonObject);
+
+      
+    });
+  
     // Send emails to reviewers and approver via backend
     // function sendEmailsToReviewersAndApprover(reviewers, approver) {
     //   const emailData = { reviewers, approver };
-    //   fetch('http://127.0.0.1:8080/api/notifications/send', {
+    //   fetch('/notifications/send', {
     //     method: 'POST',
     //     headers: { 'Content-Type': 'application/json' },
     //     body: JSON.stringify(emailData)
