@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approver Page - Medicing Enterprises</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+    }
+    header, footer {
+      background-color: #004aad;
+      color: #fff;
+      padding: 15px 20px;
+      text-align: center;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header .logo img {
+      height: 50px;
+      margin-right: 10px;
+    }
+    header .search-bar input {
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      margin-right: 5px;
+    }
+    .container {
+      max-width: 1000px;
+      margin-top: 20px;
+    }
+    .form-group label {
+      font-weight: bold;
+    }
+    .form-group select, .form-group input, .form-group textarea {
+      width: 100%;
+    }
+    .btn-submit, .btn-reset {
+      margin-top: 10px;
+    }
+    .status-section {
+      margin-top: 20px;
+    }
+    .comment-section {
+      margin-top: 20px;
+    }
+    .signature-section {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+
+    <header>
+      <h2>Medicing Enterprises - Approver Page</h2>
+      <hr>
+    </header>
+    <div class="container">
+    <!-- Document List -->
+    <h3>Documents Assigned to You</h3>
+    <div id="documentList"></div>
+
+    <!-- Success Message -->
+    <div id="successMessage" style="display: none;">
+      <p class="alert alert-success">Document approved successfully!</p>
+    </div>
+  </div>
+
+  <footer class="container mt-5">
+    <p>© 2024 Medicing Enterprises</p>
+  </footer>
+
+  <!-- Script -->
+  <script>
+    // Sample document data (this will be dynamic in real use case)
+    const documents = [
+      { id: 1, name: 'Document 1', reviewers: ['reviewer1@example.com', 'reviewer2@example.com'], approver: 'approver@example.com', status: 'Pending', comments: ['This document needs revision.'], signed: false, approved: false, rejected: false },
+      { id: 2, name: 'Document 2', reviewers: ['reviewer1@example.com'], approver: 'approver@example.com', status: 'Approved', comments: [], signed: true, approved: true, rejected: false }
+    ];
+
+    // Initialize the document list for the approver
+    function populateDocumentList() {
+      const documentList = document.getElementById('documentList');
+      documentList.innerHTML = ''; // Clear any existing content
+
+      documents.forEach(doc => {
+        const docRow = document.createElement('div');
+        docRow.classList.add('card', 'mb-3');
+        docRow.innerHTML = `
+          <div class="card-body">
+            <h5 class="card-title">${doc.name} - Status: ${doc.status}</h5>
+            <h6>Reviewers: ${doc.reviewers.join(', ')}</h6>
+            <h6>Approver: ${doc.approver}</h6>
+
+            <!-- Display Comments -->
+            <div class="comment-section">
+              <h6>Comments:</h6>
+              ${doc.comments.length > 0 ? doc.comments.map(comment => `
+                <p>${comment}</p>
+              `).join('') : '<p>No comments yet.</p>'}
+            </div>
+
+            <!-- Signature Section -->
+            <div class="signature-section">
+              <h6>Approver Signature:</h6>
+              <input type="text" id="signatureInput-${doc.id}" class="form-control" placeholder="Enter your signature">
+            </div>
+
+            <!-- Approve / Reject Buttons -->
+            <div class="status-section">
+              <button class="btn btn-success" onclick="approveDocument(${doc.id})" ${doc.signed ? '' : 'disabled'}>Approve</button>
+              <button class="btn btn-danger" onclick="rejectDocument(${doc.id})" ${doc.signed ? '' : 'disabled'}>Reject</button>
+            </div>
+          </div>
+        `;
+        documentList.appendChild(docRow);
+      });
+    }
+
+    // Approve Document
+    function approveDocument(docId) {
+      const doc = documents.find(d => d.id === docId);
+      if (doc && !doc.approved && !doc.rejected && doc.signed) {
+        doc.approved = true;
+        doc.status = 'Approved';
+        const signature = document.getElementById(`signatureInput-${docId}`).value;
+        if (signature) {
+          doc.signed = true;
+          alert(`Document Approved with Signature: ${signature}`);
+        } else {
+          alert('Please provide a signature.');
+        }
+      }
+      populateDocumentList(); // Re-render the list after approval
+    }
+
+    // Reject Document
+    function rejectDocument(docId) {
+      const doc = documents.find(d => d.id === docId);
+      if (doc && !doc.approved && !doc.rejected) {
+        doc.rejected = true;
+        doc.status = 'Rejected';
+        const signature = document.getElementById(`signatureInput-${docId}`).value;
+        if (signature) {
+          doc.signed = true;
+          alert(`Document Rejected with Signature: ${signature}`);
+        } else {
+          alert('Please provide a signature.');
+        }
+      }
+      populateDocumentList(); // Re-render the list after rejection
+    }
+
+    // Initialize the page
+    populateDocumentList();
+  </script>
+
+</body>
+</html>
