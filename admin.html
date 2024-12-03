@@ -376,9 +376,9 @@
     });
   
     // Send emails to reviewers and approver via backend
-    function sendEmailsToReviewersAndApprover(reviewers, approver) {
+     async function sendEmailsToReviewersAndApprover(reviewers, approver) {
       const emailData = { reviewers, approver };
-      fetch('https://saikiranganta2003.github.io/adminPageing/routes/notifications', {
+        await fetch('https://saikiranganta2003.github.io/adminPageing/routes/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(emailData)
