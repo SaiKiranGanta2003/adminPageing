@@ -1,33 +1,59 @@
-import { Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
 
-// Define the User Schema
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
   name: {
+    type: String,
+    required: true,
+  },
+  companyName: {
+    type: String,
+    required: true,
+  },
+  EmployeeID: {
+    type: String,
+    required: true,
+  },
+  Department: {
+    type: String,
+    required: true,
+  },
+  Designation: {
     type: String,
     required: true,
   },
   email: {
     type: String,
     required: true,
-    unique: true, // Ensures unique email addresses
+    unique: true,
     lowercase: true, // Converts email to lowercase before saving
   },
-  role: {
-    type: String,
-    enum: ['Admin', 'Reviewer', 'Approver'],
-    required: true,
-  },
+  role: [{
+      type: String,
+      enum: ["User", "Reviewer", "Approver"],
+      required: true,
+    }],
+
+  status: {
+      type: String,
+      enum: ["Active", "InActive","Created"],
+      required: true,
+    },
   password: {
     type: String,
-    required: true,
+    required: false,
   },
-  // Additional fields can be added if necessary, like profile picture, etc.
+  wrongPassword: {
+    type: Number,
+    default: 0,
+  },
+  wrongAttempts:{
+    type:Number,
+    default:0
+  }
 }, {
   timestamps: true, // Automatically adds createdAt and updatedAt fields
 });
 
-// Create the User model based on the schema
-const User = model('User', userSchema);
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 export default User;
-

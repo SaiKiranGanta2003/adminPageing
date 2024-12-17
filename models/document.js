@@ -1,77 +1,61 @@
-const mongoose = require('mongoose');
-
+import {Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
 // Define the Document Schema
 const documentSchema = new mongoose.Schema({
-  fileName: {
+  user:{
+    type:String,
+    required:true,
+  },
+  name: {
     type: String,
     required: true,
   },
-  fileUrl: {
-    type: String,
+  file: {
+    type: Buffer,
+    required: true,
+  },
+
+  size: {
+    type: Object,
     required: true,
   },
   reviewers: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
+    // type: mongoose.Schema.Types.ObjectId,
+    type:String,
+    unique: true,
+    required: false,
   }],
   approver: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    // type: mongoose.Schema.Types.ObjectId,
+    type : String,
     required: true,
   },
   status: {
     type: String,
-    enum: ['Pending', 'Approved', 'Rejected'],
-    default: 'Pending', // Initial status is "Pending"
+    required: true
   },
-  comments: [{
-    reviewer: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    comment: {
-      type: String,
-      required: true,
-    },
     date: {
       type: Date,
       default: Date.now,
     },
-  }],
-  signatures: [{
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    signatureUrl: {
-      type: String, // URL or data URL for the signature image
-      required: true,
-    },
-    date: {
-      type: Date,
-      default: Date.now,
-    },
-  }],
-}, {
-  timestamps: true, // Automatically adds createdAt and updatedAt fields
+    signature:
+      [{
+        // type: mongoose.Schema.Types.ObjectId,
+        type:String,
+        required: false,
+      }],
+    comments: [{
+      // type: mongoose.Schema.Types.ObjectId,
+      type:String,
+      required: false,
+    }],
+  }, {
+  timestamps: true,
+  
 });
 
-// Create the Document model based on the schema
-const Document = mongoose.model('Document', documentSchema);
+// Ensure no OverwriteModelError by checking if model already exists
+const modelName = 'DocumentData'; // Replace with your model 
 
-module.exports = Document;
-
-// const mongoose = require('mongoose');
-
-// const documentSchema = new mongoose.Schema({
-//     title: { type: String, required: true },
-//     reviewers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-//     approver: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-//     status: { type: String, required: true, enum: ['Pending Review', 'Approved', 'Rejected'] },
-//     comments: [{ type: String }],
-// });
-
-// module.exports = mongoose.model('Document', documentSchema);
+const Document = mongoose.models[modelName] || mongoose.model(modelName, documentSchema);
+export default Document;
